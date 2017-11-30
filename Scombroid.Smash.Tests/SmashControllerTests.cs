@@ -1,13 +1,19 @@
 ﻿using System;
 using Scombroid.Smash;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace Scombroid.Smash.Tests
 {
-    [TestClass]
     public class SmashControllerTests
     {
-        [TestMethod]
+        private readonly ITestOutputHelper output;
+        public SmashControllerTests(ITestOutputHelper output)
+        {
+            this.output = output;
+        }
+
+        [Fact]
         public void SmashController_BasicTest()
         {
             SmashController sc = new SmashController();
@@ -20,14 +26,14 @@ namespace Scombroid.Smash.Tests
             sc.Enqueue(ts2, 1000);
 
             // Run
-            Assert.IsTrue(sc.Run());
+            Assert.True(sc.Run());
 
             // Check output
-            Assert.AreEqual(1000, ts1.Counter);
-            Assert.AreEqual(1000, ts2.Counter);
+            Assert.Equal(1000, ts1.Counter);
+            Assert.Equal(1000, ts2.Counter);
 
             // output result, check test output
-            Console.WriteLine(sc);
+            this.output.WriteLine(sc.ToString());
         }
     }
 
