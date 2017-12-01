@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace Scombroid.Smash
 {
@@ -11,18 +11,30 @@ namespace Scombroid.Smash
     {
         private int _taskReadyCount;
         private System.Threading.ManualResetEvent _startEvent;
-        private List<System.Threading.Tasks.Task> _tasks;
+        private List<System.Threading.Thread> _threads;
         private ConcurrentDictionary<int, SmashResult> _threadResults;
         private string _result;
         private StringBuilder _summary = new StringBuilder();
-        private int _totalIterations;
         public SmashController()
         {
             _taskReadyCount = 0;
-            _totalIterations = 0;
+            TotalIterations = 0;
+            TotalProcessed = 0;
             _startEvent = new System.Threading.ManualResetEvent(false);
-            _tasks = new List<System.Threading.Tasks.Task>();
+            _threads = new List<System.Threading.Thread>();
             _threadResults = new ConcurrentDictionary<int, SmashResult>();
+        }
+
+        public int TotalIterations
+        {
+            get;
+            private set;
+        }
+
+        public int TotalProcessed
+        {
+            get;
+            private set;
         }
 
         public void Enqueue(ISmash smashImpl, int iterationPerThread)
@@ -30,40 +42,43 @@ namespace Scombroid.Smash
             var ctx = new SmashContext()
             {
                 Manager = this,
-                ThreadNo = this._tasks.Count + 1,
+                ThreadNo = this._threads.Count + 1,
                 NumIterations = iterationPerThread,
                 StartEvent = this._startEvent,
                 SmashImpl = smashImpl
             };
 
-            _totalIterations += iterationPerThread;
-           _tasks.Add(Task.Factory.StartNew(() => DoWork(ctx)));
+            TotalIterations += iterationPerThread;
+            _threads.Add(new Thread(() => DoWork(ctx)));
         }
 
         public bool Run()
         {
+            // start all threads
+            _threads.ForEach(t => t.Start());
+
             // wait for all threads to get ready
-            while (_taskReadyCount != _tasks.Count) // atomic read, hence not using Interlocked
+            while (_taskReadyCount != _threads.Count) // atomic read, hence not using Interlocked
             {
                 System.Threading.Thread.Sleep(10);
             }
 
-            SmashStopwatch sw = new SmashStopwatch(_totalIterations);
+            SmashStopwatch sw = new SmashStopwatch(TotalIterations);
 
             // fire the event
             _startEvent.Set();
 
             // Wait for all threads to complete
-            Task.WaitAll(_tasks.ToArray());
-            
+            _threads.ForEach(t => t.Join());
+
             sw.Done();
 
             _result = sw.ToString();
 
-            int totalProcessed = _threadResults.Values.Sum(t => t.SuccessfulIterations);
-            SmashAssert.AreEqual(_totalIterations, totalProcessed);            
+            TotalProcessed = _threadResults.Values.Sum(t => t.SuccessfulIterations);
+            SmashAssert.AreEqual(TotalIterations, TotalProcessed);            
 
-            return _totalIterations == totalProcessed;
+            return TotalIterations == TotalProcessed;
         }
 
         private void SubmitResult(int tno, SmashResult result)
