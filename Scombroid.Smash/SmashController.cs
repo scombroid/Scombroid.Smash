@@ -37,7 +37,7 @@ namespace Scombroid.Smash
             private set;
         }
 
-        public void Enqueue(ISmash smashImpl, int iterationPerThread)
+        public void Enqueue(int iterationPerThread, Func<int, int, bool> smashFunc)
         {
             var ctx = new SmashContext()
             {
@@ -45,7 +45,7 @@ namespace Scombroid.Smash
                 ThreadNo = this._threads.Count + 1,
                 NumIterations = iterationPerThread,
                 StartEvent = this._startEvent,
-                SmashImpl = smashImpl
+                SmashFunc = smashFunc
             };
 
             TotalIterations += iterationPerThread;
@@ -119,7 +119,7 @@ namespace Scombroid.Smash
             result.SuccessfulIterations = 0;
             for (int i = 0; i < tparam.NumIterations; ++i)
             {
-                if (tparam.SmashImpl.RunTest(tparam.ThreadNo, i))
+                if (tparam.SmashFunc(tparam.ThreadNo, i))
                 {
                     result.SuccessfulIterations++;
                 }

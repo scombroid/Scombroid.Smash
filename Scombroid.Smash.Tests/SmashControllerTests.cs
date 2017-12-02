@@ -20,18 +20,28 @@ namespace Scombroid.Smash.Tests
             SmashController sc = new SmashController();
 
             // Put jobs into the queue
-            TestSmash ts1 = new TestSmash();
-            sc.Enqueue(ts1, iteration);
+            int Counter1 = 0;
+            sc.Enqueue(iteration, (t, i) =>
+            {
+                System.Threading.Thread.Sleep(10);
+                Counter1++;
+                return true;
+            });
 
-            TestSmash ts2 = new TestSmash();
-            sc.Enqueue(ts2, iteration);
+            int Counter2 = 0;
+            sc.Enqueue(iteration, (t, i) =>
+            {
+                System.Threading.Thread.Sleep(10);
+                Counter2++;
+                return true;
+            });
 
             // Run
             Assert.True(sc.Run());
 
             // Check output
-            Assert.Equal(iteration, ts1.Counter);
-            Assert.Equal(iteration, ts2.Counter);
+            Assert.Equal(iteration, Counter1);
+            Assert.Equal(iteration, Counter2);
 
             // output result, check test output
             this.output.WriteLine(sc.ToString());
@@ -44,18 +54,26 @@ namespace Scombroid.Smash.Tests
             SmashController sc = new SmashController();
 
             // Put jobs into the queue
-            TestSlowSmash ts1 = new TestSlowSmash();
-            sc.Enqueue(ts1, iteration);
+            int Counter1 = 0;
+            sc.Enqueue(iteration, (t, i) => {
+                System.Threading.Thread.Sleep(3000);
+                Counter1++;
+                return true;
+            });
 
-            TestSlowSmash ts2 = new TestSlowSmash();
-            sc.Enqueue(ts2, iteration);
+            int Counter2 = 0;
+            sc.Enqueue(iteration, (t, i) => {
+                System.Threading.Thread.Sleep(3000);
+                Counter2++;
+                return true;
+            });
 
             // Run
             Assert.True(sc.Run());
 
             // Check output
-            Assert.Equal(iteration, ts1.Counter);
-            Assert.Equal(iteration, ts2.Counter);
+            Assert.Equal(iteration, Counter1);
+            Assert.Equal(iteration, Counter2);
 
             // output result, check test output
             this.output.WriteLine(sc.ToString());
@@ -72,8 +90,10 @@ namespace Scombroid.Smash.Tests
             for (int i = 0; i < threads; ++i)
             {
                 // Put jobs into the queue
-                TestSlowSmash ts = new TestSlowSmash();
-                sc.Enqueue(ts, iteration);
+                sc.Enqueue(iteration, (t, it) => {
+                    System.Threading.Thread.Sleep(3000);
+                    return true;
+                });
             }
 
             // Run

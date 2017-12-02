@@ -12,7 +12,7 @@ namespace Scombroid.Smash
         public int ThreadNo { get; set; }
         public int NumIterations { get; set; }
         public ManualResetEvent StartEvent { get; set; }
-        public ISmash SmashImpl { get; set; }
+        public Func<int, int, bool> SmashFunc { get; set; }
         public SmashController Manager { get; set; }        
     }
 
