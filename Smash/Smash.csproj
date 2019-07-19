@@ -5,10 +5,11 @@
     <Company>Scombroid Pty Ltd</Company>
     <Authors>Scombroid</Authors>
     <Description>Smash Library</Description>
-    <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/scombroid/smash</PackageProjectUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>2.0.0</Version>
+    <PackageId>Scombroid.Smash</PackageId> 
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
-
+  
 </Project>
