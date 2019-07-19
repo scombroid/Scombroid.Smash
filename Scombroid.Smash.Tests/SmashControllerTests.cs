@@ -61,11 +61,12 @@ namespace Scombroid.Smash.Tests
             this.output.WriteLine(JsonConvert.SerializeObject(smash.GetSummary(), Formatting.Indented));
         }
 
-        public async Task<int> RunTask()
+        public Task<int> RunTask()
         {
-            this.output.WriteLine("complete");
-            await Task.Delay(100);
-            return 1;
+            System.Threading.Thread.Sleep(1000);
+            int tid = System.Threading.Thread.CurrentThread.ManagedThreadId;
+            this.output.WriteLine($"{tid} - completed at {DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff")}");
+            return Task.FromResult(1);
         }
     }
 }
