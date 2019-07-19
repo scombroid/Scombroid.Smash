@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net40;net451;net452;net46;net461</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net451;net452;net46;net461</TargetFrameworks>
     <Company>Scombroid Pty Ltd</Company>
     <Authors>Scombroid</Authors>
     <Description>Scombroid Smash Library</Description>

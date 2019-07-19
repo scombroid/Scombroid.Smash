@@ -1,5 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
+using Newtonsoft.Json;
 using Scombroid.Smash;
+using Smash;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -14,117 +20,52 @@ namespace Scombroid.Smash.Tests
         }
 
         [Fact]
-        public void SmashController_BasicTest()
+        public void SmashController_ParallelTest()
         {
             int iteration = 100;
-            SmashController sc = new SmashController();
+            var parallel = new SmashParallel<int>();
 
-            // Put jobs into the queue
-            int Counter1 = 0;
-            sc.Enqueue(iteration, (t, i) =>
+            for (int i = 0; i < iteration; ++i)
             {
-                System.Threading.Thread.Sleep(10);
-                Counter1++;
-                return true;
-            });
-
-            int Counter2 = 0;
-            sc.Enqueue(iteration, (t, i) =>
-            {
-                System.Threading.Thread.Sleep(10);
-                Counter2++;
-                return true;
-            });
-
-            // Run
-            Assert.True(sc.Run());
-
-            // Check output
-            Assert.Equal(iteration, Counter1);
-            Assert.Equal(iteration, Counter2);
-
-            // output result, check test output
-            this.output.WriteLine(sc.ToString());
-        }
-
-        [Fact]
-        public void SmashController_SlowThreadTest()
-        {
-            int iteration = 1;
-            SmashController sc = new SmashController();
-
-            // Put jobs into the queue
-            int Counter1 = 0;
-            sc.Enqueue(iteration, (t, i) => {
-                System.Threading.Thread.Sleep(3000);
-                Counter1++;
-                return true;
-            });
-
-            int Counter2 = 0;
-            sc.Enqueue(iteration, (t, i) => {
-                System.Threading.Thread.Sleep(3000);
-                Counter2++;
-                return true;
-            });
-
-            // Run
-            Assert.True(sc.Run());
-
-            // Check output
-            Assert.Equal(iteration, Counter1);
-            Assert.Equal(iteration, Counter2);
-
-            // output result, check test output
-            this.output.WriteLine(sc.ToString());
-        }
-
-
-        [Fact]
-        public void SmashController_LotsOfThreadTest()
-        {
-            int threads   = 250;
-            int iteration = 1;
-            SmashController sc = new SmashController();
-
-            for (int i = 0; i < threads; ++i)
-            {
-                // Put jobs into the queue
-                sc.Enqueue(iteration, (t, it) => {
-                    System.Threading.Thread.Sleep(3000);
-                    return true;
+                parallel.Enqueue(() =>
+                {
+                    System.Threading.Thread.Sleep(10);
+                    return 1;
                 });
             }
 
-            // Run
-            Assert.True(sc.Run());
-
-            // output result, check test output
-            this.output.WriteLine(sc.ToString());
+            parallel.Run(5);
+            var threadResults = parallel.GetResults();
+            int totalCounter = threadResults.Sum(o => o.Results.Sum(r => r.Result));
+            Assert.Equal(iteration, totalCounter);
+            this.output.WriteLine(JsonConvert.SerializeObject(parallel.GetSummary(), Formatting.Indented));
         }
-    }
 
-    public class TestSmash : ISmash
-    {
-        public int Counter { get; set; }
-
-        public bool RunTest(int threadNo, int iteration)
+        [Fact]
+        public void SmashController_TaskTest()
         {
-            System.Threading.Thread.Sleep(10);
-            Counter++;
-            return true;            
+            SmashTask<int> smash = new SmashTask<int>();
+            int iteration = 10;
+            for (int i = 0; i < iteration; ++i)
+            {
+                smash.Enqueue(()=>RunTask());
+            }
+
+            System.Threading.Thread.Sleep(1000);
+            this.output.WriteLine("ENQUEUE COMPLETED");
+
+            smash.Run(5);
+            var threadResults = smash.GetResults();
+            int totalCounter = threadResults.Sum(o => o.Results.Sum(r => r.Result));
+            Assert.Equal(iteration, totalCounter);
+            this.output.WriteLine(JsonConvert.SerializeObject(smash.GetSummary(), Formatting.Indented));
         }
-    }
 
-    public class TestSlowSmash : ISmash
-    {
-        public int Counter { get; set; }
-
-        public bool RunTest(int threadNo, int iteration)
+        public async Task<int> RunTask()
         {
-            System.Threading.Thread.Sleep(3000);
-            Counter++;
-            return true;
+            this.output.WriteLine("complete");
+            await Task.Delay(100);
+            return 1;
         }
     }
 }
