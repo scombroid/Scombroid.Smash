@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Newtonsoft.Json;
-using Scombroid.Smash;
+using Smash;
 using Smash;
 using Xunit;
 using Xunit.Abstractions;

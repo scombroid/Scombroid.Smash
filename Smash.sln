@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2009
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smash", "Scombroid.Smash\Smash.csproj", "{5E0BBB49-AF5B-4316-8353-8617E2592364}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smash", "Smash\Smash.csproj", "{5E0BBB49-AF5B-4316-8353-8617E2592364}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smash.Tests", "Scombroid.Smash.Tests\Smash.Tests.csproj", "{EC1C3CF2-11D9-44B0-B7D6-1EB66FC16DEA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smash.Tests", "Smash.Tests\Smash.Tests.csproj", "{EC1C3CF2-11D9-44B0-B7D6-1EB66FC16DEA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

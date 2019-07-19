@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Scombroid.Smash\Smash.csproj" />
+    <ProjectReference Include="..\Smash\Smash.csproj" />
   </ItemGroup>
 
 </Project>
